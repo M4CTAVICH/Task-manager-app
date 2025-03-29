@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { taskService } from "../../services/taskService.js";
 import { userService } from "../../services/userService.js";
+import TaskEditForm from "./taskEditForm";
+import TaskCreateForm from "./TaskCreateForm";
 import TaskItem from "./taskItem";
 import "./TaskList.css";
 
@@ -9,6 +11,8 @@ const TaskList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editingTask, setEditingTask] = useState(null);
+  const [isCreating, setIsCreating] = useState(false);
   const [pagination, setPagination] = useState({
     page: 1,
     totalPages: 0,
@@ -58,13 +62,52 @@ const TaskList = () => {
     }
   };
 
-  const handleEditTask = async (taskId, updatedData) => {
+  const handleStartEdit = (taskId) => {
+    const taskToEdit = tasks.find((task) => task._id === taskId);
+    if (taskToEdit) {
+      setEditingTask(taskToEdit);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTask(null);
+  };
+
+  const handleSaveEdit = async (updatedTask) => {
     try {
-      const updatedTask = await taskService.updateTask(taskId, updatedData);
-      setTasks(tasks.map((task) => (task._id === taskId ? updatedTask : task)));
+      const { _id, name, completed } = updatedTask;
+      const result = await taskService.updateTask(_id, { name, completed });
+      setTasks(tasks.map((task) => (task._id === _id ? result : task)));
+      setEditingTask(null);
     } catch (err) {
       setError(err.message);
     }
+  };
+
+  const handleCreateTask = async (taskData) => {
+    try {
+      const newTask = await taskService.createTask(taskData);
+      setTasks([newTask, ...tasks]);
+      setIsCreating(false);
+
+      if (pagination.totalPages > 1) {
+        const tasksData = await taskService.getTasks(
+          pagination.page,
+          pagination.search
+        );
+        setTasks(tasksData.tasks);
+        setPagination((prev) => ({
+          ...prev,
+          totalPages: tasksData.totalPages,
+        }));
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleCancelCreate = () => {
+    setIsCreating(false);
   };
 
   if (loading) {
@@ -92,6 +135,32 @@ const TaskList = () => {
 
   return (
     <div className="task-list-container">
+      {editingTask && (
+        <TaskEditForm
+          task={editingTask}
+          onSave={handleSaveEdit}
+          onCancel={handleCancelEdit}
+        />
+      )}
+
+      {isCreating && (
+        <TaskCreateForm
+          onSave={handleCreateTask}
+          onCancel={handleCancelCreate}
+          users={users}
+        />
+      )}
+
+      <div className="task-list-header">
+        <h2>Task List</h2>
+        <button
+          className="create-task-button"
+          onClick={() => setIsCreating(true)}
+        >
+          Create New Task
+        </button>
+      </div>
+
       <div className="search-pagination">
         <input
           type="text"
@@ -136,7 +205,7 @@ const TaskList = () => {
               user={users.find((user) => user._id === task.userId)}
               onDelete={handleDeleteTask}
               onToggleComplete={handleToggleComplete}
-              onEdit={handleEditTask}
+              onEdit={handleStartEdit}
             />
           ))
         )}
