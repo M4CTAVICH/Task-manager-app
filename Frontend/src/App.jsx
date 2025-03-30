@@ -5,17 +5,28 @@ import Randomizer from "./components/randomizer";
 import Homepage from "./pages/Homepage";
 import trash from "./assets/trash.svg";
 import TaskList from "./components/tasks/TaskList";
+import UsersList from "./components/Users/UsersList";
+import Aboutpage from "./pages/Aboutpage";
 import "./App.css";
 
 function App() {
   const [selected, setSelected] = useState("home");
 
+  // Function to handle navigation from Homepage
+  const handleHomePageNavigation = (destination) => {
+    setSelected(destination);
+  };
+
   const renderContent = () => {
     switch (selected) {
       case "home":
-        return <Homepage />;
+        return <Homepage onNavigate={handleHomePageNavigation} />;
       case "tasklist":
         return <TaskList />;
+      case "Users":
+        return <UsersList />;
+      case "about":
+        return <Aboutpage />;
       case "effects":
         return <Effectcomponents />;
       case "conditional":
@@ -23,7 +34,7 @@ function App() {
       case "randomizer":
         return <Randomizer />;
       default:
-        return <Homepage />;
+        return <Homepage onNavigate={handleHomePageNavigation} />;
     }
   };
 
@@ -45,8 +56,20 @@ function App() {
             onClick={() => setSelected("tasklist")}
             className={selected === "tasklist" ? "active" : ""}
           >
-            Task List
+            Tasks
           </button>
+          <button
+            onClick={() => setSelected("Users")}
+            className={selected === "Users" ? "active" : ""}
+          >
+            Users
+          </button>
+          {/* <button
+            onClick={() => setSelected("about")}
+            className={selected === "about" ? "active" : ""}
+          >
+            About
+          </button> */}
           <button
             onClick={() => setSelected("effects")}
             className={selected === "effects" ? "active" : ""}

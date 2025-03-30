@@ -1,10 +1,10 @@
-/* Reset and base styles */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  
-  
+  font-family: "Montserrat", sans-serif;
 }
 
 #root {
@@ -17,14 +17,12 @@
   display: flex;
   flex-direction: column;
   background-color: #f5f7f9;
-
 }
 
-/* Navigation styles */
 .nav-bar {
   background-color: #ffffff;
   padding: 1rem 2rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -74,11 +72,10 @@
 }
 
 .nav-links button.active {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
 }
 
-/* Main content area */
 .main-content {
   flex: 1;
   padding: 2rem;
@@ -87,7 +84,6 @@
   width: 100%;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .nav-bar {
     flex-direction: column;
@@ -111,7 +107,6 @@
   }
 }
 
-/* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
