@@ -180,6 +180,8 @@
   border-radius: 4px;
   font-size: 16px;
   margin-left: 2px;
+  background-color: white;
+  color: #333;
 }
 
 .form-group textarea {
@@ -203,18 +205,30 @@
   background-color: #3451c6;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .contact-container {
-    flex-direction: column;
-  }
+.contact-form {
+  order: 1;
+  margin-bottom: 30px;
+}
+.status-message {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  text-align: center;
+}
 
-  .contact-info {
-    order: 2;
-  }
+.status-message.error {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+}
 
-  .contact-form {
-    order: 1;
-    margin-bottom: 30px;
-  }
+.status-message.success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+
+.submit-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }

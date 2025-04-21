@@ -9,7 +9,7 @@ export async function login(req, res) {
       email,
     });
     if (user) {
-      const isMatch = bcrypt.compare(password, user.password);
+      const isMatch = await bcrypt.compare(password, user.password);
       if (isMatch) {
         const token = jwt.sign(
           {

@@ -1,7 +1,65 @@
 import React from "react";
+import { useState } from "react";
 import "./homepage.css";
 
 const Homepage = ({ onNavigate }) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState({
+    message: "",
+    isError: false,
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setSubmitStatus({ message: "", isError: false });
+
+    try {
+      const response = await fetch("http://localhost:5000/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSubmitStatus({
+          message: "Message sent successfully!",
+          isError: false,
+        });
+      } else {
+        setSubmitStatus({
+          message: data.error || "Failed to send message.",
+          isError: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setSubmitStatus({
+        message: "An error occurred. Please try again later.",
+        isError: true,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="homepage">
       <header className="navbar">
@@ -77,7 +135,16 @@ const Homepage = ({ onNavigate }) => {
 
           <div className="contact-form">
             <h3>Send us a message</h3>
-            <form>
+            {submitStatus.message && (
+              <div
+                className={`status-message ${
+                  submitStatus.isError ? "error" : "success"
+                }`}
+              >
+                {submitStatus.message}
+              </div>
+            )}
+            <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="name">Name</label>
                 <input
@@ -85,6 +152,8 @@ const Homepage = ({ onNavigate }) => {
                   id="name"
                   name="name"
                   placeholder="Your name"
+                  value={formData.name}
+                  onChange={handleInputChange}
                   required
                 />
               </div>
@@ -96,6 +165,8 @@ const Homepage = ({ onNavigate }) => {
                   id="email"
                   name="email"
                   placeholder="Your email"
+                  value={formData.email}
+                  onChange={handleInputChange}
                   required
                 />
               </div>
@@ -107,6 +178,8 @@ const Homepage = ({ onNavigate }) => {
                   id="subject"
                   name="subject"
                   placeholder="Subject"
+                  value={formData.subject}
+                  onChange={handleInputChange}
                 />
               </div>
 
@@ -117,12 +190,18 @@ const Homepage = ({ onNavigate }) => {
                   name="message"
                   rows="5"
                   placeholder="Your message"
+                  value={formData.message}
+                  onChange={handleInputChange}
                   required
                 ></textarea>
               </div>
 
-              <button type="submit" className="submit-button">
-                Send Message
+              <button
+                type="submit"
+                className="submit-button"
+                disabled={isLoading}
+              >
+                {isLoading ? "Sending..." : "Send Message"}
               </button>
             </form>
           </div>

@@ -7,12 +7,37 @@ import trash from "./assets/trash.svg";
 import TaskList from "./components/tasks/TaskList";
 import UsersList from "./components/Users/UsersList";
 import Aboutpage from "./pages/Aboutpage";
+import Login from "./components/LOGIN";
+import Register from "./components/Register";
+import Dashboard from "./components/dashboard";
+import { AuthProvider } from "./components/AuthContext";
+import { useAuth } from "./components/AuthContext";
 import "./App.css";
 
-function App() {
+function AppContent() {
   const [selected, setSelected] = useState("home");
+  const { user, logout, loading } = useAuth();
 
-  // Function to handle navigation from Homepage
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  if (!user) {
+    return (
+      <div className="auth-container">
+        {selected === "login" ? (
+          <Login onLoginSuccess={() => setSelected("home")} />
+        ) : (
+          <Register onRegisterSuccess={() => setSelected("login")} />
+        )}
+        <div className="auth-toggle">
+          <button onClick={() => setSelected("login")}>Login</button>
+          <button onClick={() => setSelected("register")}>Register</button>
+        </div>
+      </div>
+    );
+  }
+
   const handleHomePageNavigation = (destination) => {
     setSelected(destination);
   };
@@ -33,6 +58,8 @@ function App() {
         return <CRcomponent />;
       case "randomizer":
         return <Randomizer />;
+      case "dashboard":
+        return <Dashboard />;
       default:
         return <Homepage onNavigate={handleHomePageNavigation} />;
     }
@@ -53,6 +80,12 @@ function App() {
             Home
           </button>
           <button
+            onClick={() => setSelected("dashboard")}
+            className={selected === "dashboard" ? "active" : ""}
+          >
+            Dashboard
+          </button>
+          <button
             onClick={() => setSelected("tasklist")}
             className={selected === "tasklist" ? "active" : ""}
           >
@@ -64,12 +97,6 @@ function App() {
           >
             Users
           </button>
-          {/* <button
-            onClick={() => setSelected("about")}
-            className={selected === "about" ? "active" : ""}
-          >
-            About
-          </button> */}
           <button
             onClick={() => setSelected("effects")}
             className={selected === "effects" ? "active" : ""}
@@ -88,10 +115,21 @@ function App() {
           >
             Randomizer
           </button>
+          <button onClick={logout} className="logout">
+            Logout
+          </button>
         </div>
       </nav>
       <main className="main-content">{renderContent()}</main>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
