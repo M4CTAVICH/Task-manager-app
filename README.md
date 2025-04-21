@@ -54,7 +54,6 @@ The project is organized into two main directories:
 
 ## Future Improvements
 
-- Add user registration and login UI
 - Implement task categories and tags
 - Add due dates and notifications
 - Create a mobile app version
