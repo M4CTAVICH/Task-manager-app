@@ -9,6 +9,17 @@ const apiClient = axios.create({
   },
 });
 
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 apiClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
@@ -25,6 +36,15 @@ export const taskService = {
       });
     } catch (error) {
       console.error("Error while getting tasks:", error);
+
+      // If it's a "no tasks found" error, return empty data instead of throwing
+      if (
+        error.response?.status === 404 &&
+        error.response?.data?.message?.includes("No tasks found")
+      ) {
+        return { tasks: [], totalPages: 1, count: 0 };
+      }
+
       throw error;
     }
   },
@@ -65,12 +85,23 @@ export const taskService = {
     }
   },
 
-  getTaskByUser: async (userId) => {
+  getTasksByUser: async (userId) => {
     try {
       return await apiClient.get(`/user/${userId}`);
     } catch (error) {
       console.error("Error while getting tasks by user:", error);
-      throw error;
+
+      // If it's a "no tasks found" error, return an empty array instead of throwing
+      if (
+        error.response?.status === 404 &&
+        error.response?.data?.message?.includes("No tasks found")
+      ) {
+        return []; // Return empty array instead of throwing an error
+      }
+
+      throw new Error(
+        error.response?.data?.message || "Could not fetch user tasks"
+      );
     }
   },
 };

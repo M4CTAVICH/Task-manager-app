@@ -4,25 +4,38 @@ import User from "..//models/user.js";
 export async function getTasks(req, res) {
   try {
     const { page = 1, limit = 10, search = "" } = req.query;
-    console.log(search);
 
+    // Find tasks and populate user information
     const tasks = await Task.find({
       name: {
         $regex: search,
         $options: "i",
       },
     })
+      .populate("user", "name email") // Add this to populate user details
       .limit(limit * 1)
       .skip((page - 1) * limit);
+
     const count = await Task.countDocuments({});
 
     if (!tasks.length) {
       return res.status(404).json({ message: "No tasks found" });
     }
 
-    res
-      .status(200)
-      .json({ tasks, totalPages: Math.ceil(count / limit), count });
+    // Format tasks to have consistent structure with getTaskByUser
+    const formattedTasks = tasks.map((task) => {
+      const taskObj = task.toObject();
+      return {
+        ...taskObj,
+        userId: taskObj.user._id, // Add userId field
+      };
+    });
+
+    res.status(200).json({
+      tasks: formattedTasks, // Return formatted tasks
+      totalPages: Math.ceil(count / limit),
+      count,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -102,16 +115,25 @@ export async function getTaskByUser(req, res) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const task = await Task.find({ user: userId }).populate(
+    const tasks = await Task.find({ user: userId }).populate(
       "user",
       "name email"
     );
 
-    if (!task.length) {
-      return res.status(404).json({ message: "No tasks found" });
-    }
+    // if (!tasks.length) {
+    //   return res.status(404).json({ message: "No tasks found" });
+    // }
 
-    res.status(200).json(task);
+    const formattedTasks = tasks.map((task) => {
+      const taskObj = task.toObject();
+
+      return {
+        ...taskObj,
+        userId: taskObj.user._id,
+      };
+    });
+
+    res.status(200).json(formattedTasks);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

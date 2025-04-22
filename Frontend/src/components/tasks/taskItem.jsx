@@ -2,29 +2,50 @@ import React from "react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const TaskItem = ({ task, onDelete, onToggleComplete, onEdit }) => {
+const TaskItem = ({ task, onDelete, onToggleComplete, onEdit, users = [] }) => {
   const [userName, setUserName] = useState("Loading...");
+
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        if (task.user) {
-          const response = await axios.get(`/api/users/${task.user}`);
+    const getUserName = async () => {
+      // Case 1: User object is already populated and has name
+      if (task.user && typeof task.user === "object" && task.user.name) {
+        setUserName(task.user.name);
+        return;
+      }
+
+      // Case 2: We have a userId (either from task.user or task.userId)
+      const userId = task.userId || task.user;
+
+      if (userId) {
+        // First check if we already have this user in the users array
+        const existingUser = users.find((u) => u._id === userId);
+        if (existingUser) {
+          setUserName(existingUser.name);
+          return;
+        }
+
+        // If not in the users array, fetch from API
+        try {
+          const response = await axios.get(
+            `http://localhost:3000/api/users/${userId}`
+          );
           if (response.data && response.data.name) {
             setUserName(response.data.name);
           } else {
             setUserName("Unknown User");
           }
-        } else {
-          setUserName("No User Assigned");
+        } catch (error) {
+          console.error("Error fetching user:", error);
+          setUserName("Unknown User");
         }
-      } catch (error) {
-        console.error("Error fetching user:", error);
-        setUserName("Unknown User");
+      } else {
+        setUserName("No User Assigned");
       }
     };
 
-    fetchUserData();
-  }, [task.user]);
+    getUserName();
+  }, [task.user, task.userId, users]);
+
   const statusClass = task.completed ? "status-completed" : "status-pending";
 
   return (

@@ -1,12 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "./effect.css";
 
 function Effectcomponents() {
   const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    document.title = `you clicked ${count} times`;
-  }, [count]);
 
   return (
     <div className="demo">

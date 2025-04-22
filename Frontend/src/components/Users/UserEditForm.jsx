@@ -55,7 +55,8 @@ const UserEditForm = ({ user, onSave, onCancel }) => {
           <label htmlFor="edit-password">password(optional) :</label>
           <input
             type="password"
-            name="edit-password"
+            name="password"
+            id="edit-password"
             value={formData.password}
             onChange={handleChange}
           />

@@ -10,13 +10,22 @@ import Aboutpage from "./pages/Aboutpage";
 import Login from "./components/LOGIN";
 import Register from "./components/Register";
 import Dashboard from "./components/dashboard";
-import { AuthProvider } from "./components/AuthContext";
-import { useAuth } from "./components/AuthContext";
+import AuthProvider from "./components/AuthProvider";
+import { useAuth } from "./context/authContext";
 import "./App.css";
 
 function AppContent() {
-  const [selected, setSelected] = useState("home");
+  const [selected, setSelected] = useState("login");
+  const [navParams, setNavParams] = useState({});
   const { user, logout, loading } = useAuth();
+
+  const handleNavigation = (destination, params) => {
+    setSelected(destination);
+    setNavParams(params);
+  };
+  const handleLoginSuccess = (userData) => {
+    console.log("Login successful:", userData.name);
+  };
 
   if (loading) {
     return <div className="loading">Loading...</div>;
@@ -26,13 +35,23 @@ function AppContent() {
     return (
       <div className="auth-container">
         {selected === "login" ? (
-          <Login onLoginSuccess={() => setSelected("home")} />
+          <Login onLoginSuccess={handleLoginSuccess} />
         ) : (
           <Register onRegisterSuccess={() => setSelected("login")} />
         )}
         <div className="auth-toggle">
-          <button onClick={() => setSelected("login")}>Login</button>
-          <button onClick={() => setSelected("register")}>Register</button>
+          <button
+            onClick={() => setSelected("login")}
+            className={selected === "login" ? "active" : ""}
+          >
+            Login
+          </button>
+          <button
+            onClick={() => setSelected("register")}
+            className={selected === "register" ? "active" : ""}
+          >
+            Register
+          </button>
         </div>
       </div>
     );
@@ -47,19 +66,15 @@ function AppContent() {
       case "home":
         return <Homepage onNavigate={handleHomePageNavigation} />;
       case "tasklist":
-        return <TaskList />;
+        return <TaskList userId={navParams.userId} />;
       case "Users":
         return <UsersList />;
       case "about":
         return <Aboutpage />;
-      case "effects":
-        return <Effectcomponents />;
-      case "conditional":
-        return <CRcomponent />;
       case "randomizer":
         return <Randomizer />;
       case "dashboard":
-        return <Dashboard />;
+        return <Dashboard onNavigate={handleNavigation} />;
       default:
         return <Homepage onNavigate={handleHomePageNavigation} />;
     }
@@ -96,18 +111,6 @@ function AppContent() {
             className={selected === "Users" ? "active" : ""}
           >
             Users
-          </button>
-          <button
-            onClick={() => setSelected("effects")}
-            className={selected === "effects" ? "active" : ""}
-          >
-            Effects
-          </button>
-          <button
-            onClick={() => setSelected("conditional")}
-            className={selected === "conditional" ? "active" : ""}
-          >
-            Conditional
           </button>
           <button
             onClick={() => setSelected("randomizer")}

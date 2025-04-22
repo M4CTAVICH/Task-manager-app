@@ -1,7 +1,11 @@
-import { useAuth } from "./AuthContext";
+import { useAuth } from "../context/authContext";
 
-function Dashboard() {
+function Dashboard({ onNavigate }) {
   const { user } = useAuth();
+
+  const handleViewMyTasks = () => {
+    onNavigate("tasklist", { userId: user._id });
+  };
 
   return (
     <div className="dashboard">
@@ -13,7 +17,7 @@ function Dashboard() {
       </div>
       <div className="dashboard-actions">
         <h3>Quick Actions</h3>
-        <button>View My Tasks</button>
+        <button onClick={handleViewMyTasks}>View My Tasks</button>
         <button>Create New Task</button>
         <button>Edit Profile</button>
       </div>

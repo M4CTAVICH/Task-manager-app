@@ -6,7 +6,7 @@ import TaskCreateForm from "./TaskCreateForm";
 import TaskItem from "./taskItem";
 import "./TaskList.css";
 
-const TaskList = () => {
+const TaskList = ({ userId }) => {
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,18 +23,58 @@ const TaskList = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [tasksData, usersData] = await Promise.all([
-          taskService.getTasks(pagination.page, pagination.search),
-          userService.getUsers(),
-        ]);
+        let tasksData;
 
-        setTasks(tasksData.tasks);
+        try {
+          if (userId) {
+            console.log("Fetching tasks for user:", userId);
+            const userTasks = await taskService.getTasksByUser(userId);
+
+            tasksData = {
+              tasks: userTasks || [],
+              totalPages: 1,
+            };
+          } else {
+            tasksData = await taskService.getTasks(
+              pagination.page,
+              pagination.search
+            );
+          }
+
+          setError(null);
+        } catch (err) {
+          console.log("API response error:", err);
+
+          if (
+            err.message &&
+            (err.message.includes("No tasks found") ||
+              err.message.includes("not found"))
+          ) {
+            tasksData = {
+              tasks: [],
+              totalPages: 1,
+            };
+            setError(null);
+          } else {
+            setError(err.message);
+            tasksData = {
+              tasks: [],
+              totalPages: 1,
+            };
+          }
+        }
+
+        console.log("Tasks data after API call:", tasksData);
+        const usersData = await userService.getUsers();
+
+        setTasks(tasksData.tasks || []);
         setUsers(usersData);
         setPagination((prev) => ({
           ...prev,
-          totalPages: tasksData.totalPages,
+          totalPages: tasksData.totalPages || 1,
         }));
       } catch (err) {
+        console.error("Unexpected error in fetchData:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -42,7 +82,7 @@ const TaskList = () => {
     };
 
     fetchData();
-  }, [pagination.page, pagination.search]);
+  }, [pagination.page, pagination.search, userId]);
 
   const handleDeleteTask = async (taskId) => {
     try {
@@ -123,12 +163,20 @@ const TaskList = () => {
     return (
       <div className="error-container">
         <p className="error-message">Error: {error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="retry-button"
-        >
-          Retry
-        </button>
+        <div className="error-actions">
+          <button
+            onClick={() => window.location.reload()}
+            className="retry-button"
+          >
+            Retry
+          </button>
+          <button
+            onClick={() => setIsCreating(true)}
+            className="create-task-button-empty"
+          >
+            Create New Task
+          </button>
+        </div>
       </div>
     );
   }
@@ -152,7 +200,7 @@ const TaskList = () => {
       )}
 
       <div className="task-list-header">
-        <h2>Task List</h2>
+        <h2>{userId ? "My Tasks" : "All Tasks"}</h2>
         <button
           className="create-task-button"
           onClick={() => setIsCreating(true)}
@@ -196,13 +244,19 @@ const TaskList = () => {
 
       <div className="tasks-container">
         {tasks.length === 0 ? (
-          <div className="no-tasks">No tasks found</div>
+          // Updated empty task container code
+          <div className="empty-task-container">
+            <div className="no-tasks">No tasks found</div>
+            <h3 className="get-started">
+              Get started by creating the first task!
+            </h3>
+          </div>
         ) : (
           tasks.map((task) => (
             <TaskItem
               key={task._id}
               task={task}
-              user={users.find((user) => user._id === task.userId)}
+              users={users}
               onDelete={handleDeleteTask}
               onToggleComplete={handleToggleComplete}
               onEdit={handleStartEdit}

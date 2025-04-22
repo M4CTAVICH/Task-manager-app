@@ -1,10 +1,12 @@
 import { useState } from "react";
 import axios from "axios";
+import { useAuth } from "../context/authContext";
 
 function Login({ onLoginSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,9 +19,14 @@ function Login({ onLoginSuccess }) {
         }
       );
 
+      // Store token and user data
       localStorage.setItem("token", response.data.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.data));
 
+      // Important: Update the auth context with user data
+      login(response.data.data);
+
+      // Call onLoginSuccess callback if provided
       if (onLoginSuccess) {
         onLoginSuccess(response.data.data);
       }
