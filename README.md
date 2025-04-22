@@ -16,7 +16,7 @@ A full-stack task management application built with React.js frontend and Expres
 
 ### Frontend
 
-- React.js with Hooks (useState, useEffect)
+- React.js
 - Axios for API communication
 - CSS for styling
 - Vite for build tooling
@@ -50,7 +50,7 @@ The project is organized into two main directories:
 1. Clone the repository
 
    ```
-   git clone https://github.com/yourusername/task-manager-app.git
+   git clone https://github.com/M4CTAVICH/task-manager-app.git
    cd task-manager-app
    ```
 
