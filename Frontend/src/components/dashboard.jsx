@@ -6,6 +6,9 @@ function Dashboard({ onNavigate }) {
   const handleViewMyTasks = () => {
     onNavigate("tasklist", { userId: user._id });
   };
+  const handleCreateNewTask = () => {
+    onNavigate("createtask", { userId: user._id });
+  };
 
   return (
     <div className="dashboard">
@@ -18,7 +21,7 @@ function Dashboard({ onNavigate }) {
       <div className="dashboard-actions">
         <h3>Quick Actions</h3>
         <button onClick={handleViewMyTasks}>View My Tasks</button>
-        <button>Create New Task</button>
+        <button onClick={handleCreateNewTask}>Create New Task</button>
         <button>Edit Profile</button>
       </div>
     </div>

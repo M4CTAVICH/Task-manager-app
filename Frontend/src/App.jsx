@@ -12,6 +12,7 @@ import Register from "./components/Register";
 import Dashboard from "./components/dashboard";
 import AuthProvider from "./components/AuthProvider";
 import { useAuth } from "./context/authContext";
+import TaskCreatePage from "./components/TaskCreatePage";
 import "./App.css";
 
 function AppContent() {
@@ -75,6 +76,8 @@ function AppContent() {
         return <Randomizer />;
       case "dashboard":
         return <Dashboard onNavigate={handleNavigation} />;
+      case "createtask":
+        return <TaskCreatePage onNavigate={handleNavigation} />;
       default:
         return <Homepage onNavigate={handleHomePageNavigation} />;
     }

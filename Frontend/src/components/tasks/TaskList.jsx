@@ -170,12 +170,6 @@ const TaskList = ({ userId }) => {
           >
             Retry
           </button>
-          <button
-            onClick={() => setIsCreating(true)}
-            className="create-task-button-empty"
-          >
-            Create New Task
-          </button>
         </div>
       </div>
     );
